@@ -33,6 +33,10 @@
     python -m pip install -e source/Arm_X4   # install this repository in editable mode
 
 ## Task
+- For real-world identification, please refer to:
+    ```bash
+    python scripts/control.py
+    ```
 
 - Listing the available tasks:
     ```bash

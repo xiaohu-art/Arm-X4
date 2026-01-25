@@ -98,6 +98,7 @@ def run_simulator(sim: sim_utils.SimulationContext, scene: InteractiveScene):
 
     # Setup viser server
     server = viser.ViserServer(port=args_cli.viser_port)
+    server.scene.add_grid("/ground", width=4.0, height=4.0, cell_size=0.1)
     print(f"[INFO] Viser server started at http://localhost:{args_cli.viser_port}")
 
     urdf = yourdfpy.URDF.load(ARM_X4_URDF_PATH)
