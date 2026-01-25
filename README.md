@@ -1,93 +1,64 @@
-# Template for Isaac Lab Projects
-
-## Overview
-
-This project/repository serves as a template for building projects or extensions based on Isaac Lab.
-It allows you to develop in an isolated environment, outside of the core Isaac Lab repository.
-
-**Key Features:**
-
-- `Isolation` Work outside the core Isaac Lab repository, ensuring that your development efforts remain self-contained.
-- `Flexibility` This template is set up to allow your code to be run as an extension in Omniverse.
-
-**Keywords:** extension, template, isaaclab
+# Reinforcement Learning Control for Arm-X4
 
 ## Installation
 
-- Install Isaac Lab by following the [installation guide](https://isaac-sim.github.io/IsaacLab/main/source/setup/installation/index.html).
-  We recommend using the conda or uv installation as it simplifies calling Python scripts from the terminal.
+1. Install IsaacSim [5.1.0](https://docs.isaacsim.omniverse.nvidia.com/latest/installation/download.html) by downloading release and unzip it to a desired location `$ISAACSIM_PATH`
+2. Clone [Isaac Lab (2026/01/25)](https://github.com/isaac-sim/IsaacLab) and setup soft link forking to `$ISAACLAB_PATH` by
+    ```bash
+    cd IsaacLab
+    ln -s $ISAACSIM_PATH _isaac_sim
+    ```
+3. Clone this repository to `${workspace}`
+4. We leverage `uv` for python interpreter management. Install `uv` by following the [installation guide](https://docs.astral.sh/uv/getting-started/installation/) and setup `uv` environment:
+    ```bash
+    uv venv --python 3.11 lab
+    source lab/bin/activate
+    uv pip install -U pip
+    ```
+    Now the workspace should look like this:
+    ```bash
+    ${workspace}
+    ├── lab/            # uv venv
+    ├── Arm_X4/         # this repository
+    ├── IsaacLab/       # Isaac Lab repository
+    ├────_isaac_sim/    # soft link to IsaacSim
+    ```
+5. Activate `uv` environment and install IsaacLab and this repository:
+    ```bash
+    cd IsaacLab
+    ./isaaclab.sh --uv ../lab       # link python interpreter to uv venv
+    ./isaaclab.sh -i rsl_rl         # install IsaacLab and rsl_rl library
 
-- Clone or copy this project/repository separately from the Isaac Lab installation (i.e. outside the `IsaacLab` directory):
+    cd Arm_X4
+    python -m pip install -e source/Arm_X4   # install this repository in editable mode
 
-- Using a python interpreter that has Isaac Lab installed, install the library in editable mode using:
+## Task
+
+- Listing the available tasks:
+    ```bash
+    python scripts/list_envs.py
+    ```
+
+- Running a task:
 
     ```bash
-    # use 'PATH_TO_isaaclab.sh|bat -p' instead of 'python' if Isaac Lab is not installed in Python venv or conda
-    python -m pip install -e source/Arm_X4
+    python scripts/rsl_rl/train.py --task=Arm-X4
+    ```
 
-- Verify that the extension is correctly installed by:
+- Running a task with dummy agents:
 
-    - Listing the available tasks:
+    These include dummy agents that output zero or random agents. They are useful to ensure that the environments are configured correctly.
 
-        Note: It the task name changes, it may be necessary to update the search pattern `"Template-"`
-        (in the `scripts/list_envs.py` file) so that it can be listed.
-
-        ```bash
-        # use 'FULL_PATH_TO_isaaclab.sh|bat -p' instead of 'python' if Isaac Lab is not installed in Python venv or conda
-        python scripts/list_envs.py
-        ```
-
-    - Running a task:
+    - Zero-action agent
 
         ```bash
-        # use 'FULL_PATH_TO_isaaclab.sh|bat -p' instead of 'python' if Isaac Lab is not installed in Python venv or conda
-        python scripts/<RL_LIBRARY>/train.py --task=<TASK_NAME>
+        python scripts/zero_agent.py --task=Arm-X4
         ```
+    - Random-action agent
 
-    - Running a task with dummy agents:
-
-        These include dummy agents that output zero or random agents. They are useful to ensure that the environments are configured correctly.
-
-        - Zero-action agent
-
-            ```bash
-            # use 'FULL_PATH_TO_isaaclab.sh|bat -p' instead of 'python' if Isaac Lab is not installed in Python venv or conda
-            python scripts/zero_agent.py --task=<TASK_NAME>
-            ```
-        - Random-action agent
-
-            ```bash
-            # use 'FULL_PATH_TO_isaaclab.sh|bat -p' instead of 'python' if Isaac Lab is not installed in Python venv or conda
-            python scripts/random_agent.py --task=<TASK_NAME>
-            ```
-
-### Set up IDE (Optional)
-
-To setup the IDE, please follow these instructions:
-
-- Run VSCode Tasks, by pressing `Ctrl+Shift+P`, selecting `Tasks: Run Task` and running the `setup_python_env` in the drop down menu.
-  When running this task, you will be prompted to add the absolute path to your Isaac Sim installation.
-
-If everything executes correctly, it should create a file .python.env in the `.vscode` directory.
-The file contains the python paths to all the extensions provided by Isaac Sim and Omniverse.
-This helps in indexing all the python modules for intelligent suggestions while writing code.
-
-### Setup as Omniverse Extension (Optional)
-
-We provide an example UI extension that will load upon enabling your extension defined in `source/Arm_X4/Arm_X4/ui_extension_example.py`.
-
-To enable your extension, follow these steps:
-
-1. **Add the search path of this project/repository** to the extension manager:
-    - Navigate to the extension manager using `Window` -> `Extensions`.
-    - Click on the **Hamburger Icon**, then go to `Settings`.
-    - In the `Extension Search Paths`, enter the absolute path to the `source` directory of this project/repository.
-    - If not already present, in the `Extension Search Paths`, enter the path that leads to Isaac Lab's extension directory directory (`IsaacLab/source`)
-    - Click on the **Hamburger Icon**, then click `Refresh`.
-
-2. **Search and enable your extension**:
-    - Find your extension under the `Third Party` category.
-    - Toggle it to enable your extension.
+        ```bash
+        python scripts/random_agent.py --task=Arm-X4
+        ```
 
 ## Code formatting
 

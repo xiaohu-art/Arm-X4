@@ -13,7 +13,7 @@ from . import agents
 
 
 gym.register(
-    id="Template-Arm-X4-v0",
+    id="Arm-X4",
     entry_point="isaaclab.envs:ManagerBasedRLEnv",
     disable_env_checker=True,
     kwargs={
