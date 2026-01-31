@@ -45,7 +45,7 @@ from isaaclab.scene import InteractiveScene, InteractiveSceneCfg
 from isaaclab.sim import SimulationContext
 from isaaclab.utils import configclass
 from isaaclab.utils.assets import ISAAC_NUCLEUS_DIR
-
+from isaaclab.sensors import TiledCamera, TiledCameraCfg
 ##
 # Pre-defined configs
 ##
@@ -70,11 +70,31 @@ class SceneCfg(InteractiveSceneCfg):
     # articulation
     robot: ArticulationCfg = ARM_X4_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
 
+    #Wrist Camera
+    wrist_camera: TiledCameraCfg = TiledCameraCfg(
+        prim_path="{ENV_REGEX_NS}/Robot/link7",
+        offset=TiledCameraCfg.OffsetCfg(
+            pos=(0., 0., 0.05),
+            rot=(1., 0., 0., 0.),
+            convention="world"
+        ),
+        data_types=["rgb", "depth"],
+        spawn=sim_utils.PinholeCameraCfg(
+            focal_length=24.0,
+            focus_distance=400.0,
+            horizontal_aperture=20.955,
+            clipping_range=(0.1, 20.0)
+        ),
+        width=128,
+        height=128,
+    )
+
 
 def run_simulator(sim: sim_utils.SimulationContext, scene: InteractiveScene):
     """Run the simulation loop."""
     # Extract scene entities
     robot: Articulation = scene["robot"]
+    wrist_camera: TiledCamera = scene["wrist_camera"]
 
     # Define simulation stepping
     sim_dt = sim.get_physics_dt()
@@ -143,9 +163,15 @@ def run_simulator(sim: sim_utils.SimulationContext, scene: InteractiveScene):
         # Update scene
         scene.update(sim_dt)
 
+        # update joint position to viser
         current_joint_pos = robot.data.joint_pos[0].cpu().numpy()
         joint_config = {name: float(pos) for name, pos in zip(joint_names, current_joint_pos)}
         urdf_vis.update_cfg(joint_config)
+
+        # update wrist camera to viser
+        rgb_data = wrist_camera.data.output["rgb"] / 255.0
+        depth_data = wrist_camera.data.output["depth"]
+        depth_data[depth_data == float("inf")] = 0
 
         count += 1
 

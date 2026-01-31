@@ -14,6 +14,7 @@ from isaaclab.managers import SceneEntityCfg
 from isaaclab.managers import TerminationTermCfg as DoneTerm
 from isaaclab.scene import InteractiveSceneCfg
 from isaaclab.utils import configclass
+from isaaclab.sensors import TiledCamera, TiledCameraCfg
 
 from . import mdp
 
@@ -41,6 +42,25 @@ class ArmX4SceneCfg(InteractiveSceneCfg):
 
     # robot
     robot: ArticulationCfg = ARM_X4_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
+
+    #Wrist Camera
+    wrist_camera: TiledCameraCfg = TiledCameraCfg(
+        prim_path="{ENV_REGEX_NS}/Robot/link7",
+        offset=TiledCameraCfg.OffsetCfg(
+            pos=(0., 0., 0.05),
+            rot=(1., 0., 0., 0.),
+            convention="world"
+        ),
+        data_types=["rgb", "depth"],
+        spawn=sim_utils.PinholeCameraCfg(
+            focal_length=24.0,
+            focus_distance=400.0,
+            horizontal_aperture=20.955,
+            clipping_range=(0.1, 20.0)
+        ),
+        width=128,
+        height=128,
+    )
 
     # lights
     dome_light = AssetBaseCfg(
