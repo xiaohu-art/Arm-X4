@@ -72,7 +72,7 @@ class SceneCfg(InteractiveSceneCfg):
 
     #Wrist Camera
     wrist_camera: TiledCameraCfg = TiledCameraCfg(
-        prim_path="{ENV_REGEX_NS}/Robot/link7",
+        prim_path="{ENV_REGEX_NS}/Robot/link7/wrist_camera",
         offset=TiledCameraCfg.OffsetCfg(
             pos=(0., 0., 0.05),
             rot=(1., 0., 0., 0.),
@@ -120,6 +120,10 @@ def run_simulator(sim: sim_utils.SimulationContext, scene: InteractiveScene):
     server = viser.ViserServer(port=args_cli.viser_port)
     server.scene.add_grid("/ground", width=4.0, height=4.0, cell_size=0.1)
     print(f"[INFO] Viser server started at http://localhost:{args_cli.viser_port}")
+
+    with server.gui.add_folder("Sensors"):
+        gui_rgb = server.gui.add_image(label="Wrist RGB", image=np.zeros((128, 128, 3)), format="jpeg")
+        gui_depth = server.gui.add_image(label="Wrist Depth", image=np.zeros((128, 128, 3)), format="jpeg")
 
     urdf = yourdfpy.URDF.load(ARM_X4_URDF_PATH)
     urdf_vis = ViserUrdf(server, urdf)
@@ -169,9 +173,12 @@ def run_simulator(sim: sim_utils.SimulationContext, scene: InteractiveScene):
         urdf_vis.update_cfg(joint_config)
 
         # update wrist camera to viser
-        rgb_data = wrist_camera.data.output["rgb"] / 255.0
-        depth_data = wrist_camera.data.output["depth"]
+        rgb_data = wrist_camera.data.output["rgb"][0]
+        gui_rgb.image = rgb_data.cpu().numpy().astype(np.uint8)
+
+        depth_data = wrist_camera.data.output["depth"][0]
         depth_data[depth_data == float("inf")] = 0
+        gui_depth.image = depth_data.cpu().numpy().astype(np.uint8).repeat(3, axis=2)
 
         count += 1
 

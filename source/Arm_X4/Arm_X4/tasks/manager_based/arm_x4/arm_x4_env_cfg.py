@@ -45,7 +45,7 @@ class ArmX4SceneCfg(InteractiveSceneCfg):
 
     #Wrist Camera
     wrist_camera: TiledCameraCfg = TiledCameraCfg(
-        prim_path="{ENV_REGEX_NS}/Robot/link7",
+        prim_path="{ENV_REGEX_NS}/Robot/link7/wrist_camera",
         offset=TiledCameraCfg.OffsetCfg(
             pos=(0., 0., 0.05),
             rot=(1., 0., 0., 0.),
